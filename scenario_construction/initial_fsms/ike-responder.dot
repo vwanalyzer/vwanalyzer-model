@@ -84,8 +84,8 @@ ike_responder_auth_3_request_wait -> ike_responder_auth_3_response_sent [label =
 ike_responder_auth_3_request_wait -> ike_responder_auth_3_request_wait [label = "!check_other_imid & internal_udp_ike=rcvd_ike_packet / other_ike_retransmission_needed=true, internal_udp_ike=null"]
 ike_responder_auth_3_response_sent -> ike_responder_auth_3_done [label = "internal_udp_ike=sent_ike_packet / role=null, internal_udp_ike=null"]
 
-//// IKE Keepalive
-//ike_responder_auth_3_done -> ike_responder_keepalive [label = "ike_sa_established & child_sa_established / internal_ike_sip=child_sa_established"]
+// IKE Keepalive
+ike_responder_auth_3_done -> ike_responder_keepalive [label = "ike_sa_established & child_sa_established / internal_ike_sip=child_sa_established"]
 //ike_responder_keepalive_done -> ike_responder_keepalive [label = "!ike_exchange_start / ike_exchange_start=true"]
 //ike_responder_keepalive -> ike_responder_keepalive_request_wait [label = "ike_exchange_start / ike_exchange_start=false, role=responder, rnum=0"]
 //ike_responder_keepalive_request_wait -> ike_responder_auth_3_response_sent [label = "check_retransmission & internal_udp_ike=rcvd_ike_packet & other_last_sent_ike_msg=ike_auth_3 & other_last_sent_payload=authentication / my_last_rcvd_ike_msg=ike_auth_3, my_last_rcvd_payload=authentication, internal_ike_udp=send_ike_responder_packet, my_last_sent_ike_msg=ike_auth_3, my_last_sent_payload=authentication, internal_udp_ike=null"]

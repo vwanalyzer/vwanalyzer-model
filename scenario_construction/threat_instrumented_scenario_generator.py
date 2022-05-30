@@ -481,8 +481,7 @@ def main_combined(config=None, ofprefix=None, ofdir=None):
 
     # return (env_vars, state_vars, num_vars, smv_vars, smv_nums, fsm, smv_manual_checks)
 
-    #for i in threat_instrumented_scenarios:
-    for i in range(1):
+    for i in threat_instrumented_scenarios:
         variables = create_vars_combined(threat_instrumented_scenarios[i])
         nums = create_nums_combined(threat_instrumented_scenarios[i]) # smv_vars
         fsms = create_fsms_combined(threat_instrumented_scenarios[i])
