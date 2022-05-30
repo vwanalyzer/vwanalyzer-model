@@ -1,0 +1,26 @@
+digraph UE_TO_OTHER_CHANNEL{
+rankdir = LR;
+size = "8,5"
+node [shape = circle, label="channel_idle"] channel_idle;
+node [shape = circle, label="ue_to_dns_packet"] ue_to_dns_packet;
+node [shape = circle, label="ue_to_epdg_packet"] ue_to_epdg_packet;
+
+//initial_state: channel_idle
+//environment variables: dns_spoofing; ue_to_other_packet_drop; intercept;
+//state variables: dns_spoofing_enabled{true, false}<false>; interception_enabled{true, false}<false>;
+//number variables: ue_to_other_src_addr{0, 5}<0, nat_nip, ue_sent_src_addr>; ue_to_other_dst_addr{0, 5}<0, ue_sent_dst_addr>; ue_to_other_src_port{0, 5}<0, ue_sent_src_port>; ue_to_other_dst_port{0, 5}<0, ue_sent_dst_port>;
+channel_idle -> ue_to_dns_packet [label = "ue_external_ue_other=sent_ip_packet & dns_spoofing & ue_sent_src_addr=nat_uip & ue_sent_dst_addr=dns_dip / ue_to_other_src_addr=nat_nip, ue_to_other_dst_addr=ue_sent_dst_addr, ue_to_other_src_port=ue_sent_src_port, ue_to_other_dst_port=ue_sent_dst_port, dns_spoofing_enabled=true, ue_external_ue_other=null"]
+channel_idle -> ue_to_dns_packet [label = "ue_external_ue_other=sent_ip_packet & !dns_spoofing & ue_sent_src_addr=nat_uip & ue_sent_dst_addr=dns_dip / ue_to_other_src_addr=nat_nip, ue_to_other_dst_addr=ue_sent_dst_addr, ue_to_other_src_port=ue_sent_src_port, ue_to_other_dst_port=ue_sent_dst_port, ue_external_ue_other=null"]
+ue_to_dns_packet -> channel_idle [label = "ue_to_other_dst_addr=dns_dip / dns_external_other_dns=rcvd_ip_packet, dns_rcvd_src_addr=ue_to_other_src_addr, dns_rcvd_dst_addr=ue_to_other_dst_addr, dns_rcvd_src_port=ue_to_other_src_port, dns_rcvd_dst_port=ue_to_other_dst_port"]
+
+channel_idle -> ue_to_epdg_packet [label = "ue_external_ue_other=sent_ip_packet & intercept & ue_sent_src_addr=nat_uip & ue_sent_dst_addr=epdg_eip / ue_to_other_src_addr=adv_aip, ue_to_other_dst_addr=ue_sent_dst_addr, ue_to_other_src_port=ue_sent_src_port, ue_to_other_dst_port=ue_sent_dst_port, interception_enabled=true, ue_external_ue_other=null"]
+channel_idle -> ue_to_epdg_packet [label = "ue_external_ue_other=sent_ip_packet & interception_enabled & ue_sent_src_addr=nat_uip & ue_sent_dst_addr=epdg_eip / ue_to_other_src_addr=adv_aip, ue_to_other_dst_addr=ue_sent_dst_addr, ue_to_other_src_port=ue_sent_src_port, ue_to_other_dst_port=ue_sent_dst_port, ue_external_ue_other=null"]
+channel_idle -> ue_to_epdg_packet [label = "ue_external_ue_other=sent_ip_packet & !intercept & ue_sent_src_addr=nat_uip & ue_sent_dst_addr=epdg_eip / ue_to_other_src_addr=nat_nip, ue_to_other_dst_addr=ue_sent_dst_addr, ue_to_other_src_port=ue_sent_src_port, ue_to_other_dst_port=ue_sent_dst_port, ue_external_ue_other=null"]
+channel_idle -> ue_to_epdg_packet [label = "ue_external_ue_other=sent_ip_packet & !interception_enabled & ue_sent_src_addr=nat_uip & ue_sent_dst_addr=epdg_eip / ue_to_other_src_addr=nat_nip, ue_to_other_dst_addr=ue_sent_dst_addr, ue_to_other_src_port=ue_sent_src_port, ue_to_other_dst_port=ue_sent_dst_port, ue_external_ue_other=null"]
+ue_to_epdg_packet -> channel_idle [label = "ue_to_other_dst_addr=epdg_eip & !ue_to_other_packet_drop / epdg_external_other_epdg=rcvd_ip_packet, epdg_rcvd_src_addr=ue_to_other_src_addr, epdg_rcvd_dst_addr=ue_to_other_dst_addr, epdg_rcvd_src_port=ue_to_other_src_port, epdg_rcvd_dst_port=ue_to_other_dst_port"]
+
+ue_to_epdg_packet -> channel_idle [label = "ue_to_other_packet_drop & ue_to_other_dst_port=ike_port & ue_role=requester / ue_ike_retransmission_needed=true"]
+ue_to_epdg_packet -> channel_idle [label = "ue_to_other_packet_drop & ue_to_other_dst_port=ike_port & ue_role=responder / epdg_ike_retransmission_needed=true"]
+ue_to_epdg_packet -> channel_idle [label = "ue_to_other_packet_drop & ue_to_other_dst_port=sip_port / ue_sip_retransmission_needed=true"]
+
+}

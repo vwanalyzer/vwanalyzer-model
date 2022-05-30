@@ -1,0 +1,105 @@
+digraph IKE_INITIATOR{
+rankdir = LR;
+size = "8,5"
+node [shape = circle, label="ike_initiator_idle"] ike_initiator_idle;
+node [shape = circle, label="ike_initiator_failed"] ike_initiator_failed;
+node [shape = circle, label="ike_initiator_ready"] ike_initiator_ready;
+node [shape = circle, label="ike_initiator_sa_init"] ike_initiator_sa_init;
+node [shape = circle, label="ike_initiator_sa_init_request_sent"] ike_initiator_sa_init_request_sent;
+node [shape = circle, label="ike_initiator_sa_init_response_wait"] ike_initiator_sa_init_response_wait;
+node [shape = circle, label="ike_initiator_sa_init_done"] ike_initiator_sa_init_done;
+node [shape = circle, label="ike_initiator_auth_1"] ike_initiator_auth_1;
+node [shape = circle, label="ike_initiator_auth_1_request_sent"] ike_initiator_auth_1_request_sent;
+node [shape = circle, label="ike_initiator_auth_1_response_wait"] ike_initiator_auth_1_response_wait;
+node [shape = circle, label="ike_initiator_auth_1_done"] ike_initiator_auth_1_done;
+node [shape = circle, label="ike_initiator_auth_2"] ike_initiator_auth_2;
+node [shape = circle, label="ike_initiator_auth_2_request_sent"] ike_initiator_auth_2_request_sent;
+node [shape = circle, label="ike_initiator_auth_2_response_wait"] ike_initiator_auth_2_response_wait;
+node [shape = circle, label="ike_initiator_auth_2_done"] ike_initiator_auth_2_done;
+node [shape = circle, label="ike_initiator_auth_3"] ike_initiator_auth_3;
+node [shape = circle, label="ike_initiator_auth_3_request_sent"] ike_initiator_auth_3_request_sent;
+node [shape = circle, label="ike_initiator_auth_3_response_wait"] ike_initiator_auth_3_response_wait;
+node [shape = circle, label="ike_initiator_auth_3_done"] ike_initiator_auth_3_done;
+node [shape = circle, label="ike_initiator_keepalive"] ike_initiator_keepalive;
+node [shape = circle, label="ike_initiator_keepalive_request_sent"] ike_initiator_keepalive_request_sent;
+node [shape = circle, label="ike_initiator_keepalive_response_wait"] ike_initiator_keepalive_response_wait;
+node [shape = circle, label="ike_initiator_keepalive_request_wait"] ike_initiator_keepalive_request_wait;
+node [shape = circle, label="ike_initiator_keepalive_response_sent"] ike_initiator_keepalive_response_sent;
+node [shape = circle, label="ike_initiator_keepalive_done"] ike_initiator_keepalive_done;
+
+//initial_state: ike_initiator_idle
+//state variables: internal_ike_udp{send_ike_initiator_packet, send_ike_responder_packet, null}<null>; internal_ike_dns{init_epdg_discovery, null}<null>; internal_ike_sip{child_sa_established, null}<null>; ike_exchange_start{true, false}<false>; my_ike_retransmission_needed{true, false}<false>; role{requester, responder, null}<null>; dynamic_update_enabled{true, false}<false>; ike_sa_established{true, false}<false>; child_sa_established{true, false}<false>; my_last_sent_ike_msg{ike_sa_init, ike_auth_1, ike_auth_2, ike_auth_3, ike_keepalive, null}<null>; my_last_rcvd_ike_msg{ike_sa_init, ike_auth_1, ike_auth_2, ike_auth_3, ike_keepalive, null}<null>; my_last_sent_payload{configuration, configuration_and_certreq, eap-response-aka-challenge, eap-success, authentication, null}<null>; my_last_rcvd_payload{configuration, certificate_and_authentication_and_eap-request-aka-challenge, eap-request-aka-challenge, authentication, configuration_and_authentication, null}<null>; root_certificate_is_provisioned{true, false}<false>; received_eap_success{true, false}<false>;
+//number variables: my_imid{0, 8}<0, ((my_imid+1) mod 8)>; my_rmid{0, 8}<0, ((my_rmid + 1) mod 8)>; rnum{0, 3}<0, rnum+1>; rip{0, 5}<0, eip>;
+//define: check_other_imid := (other_imid=my_imid); check_other_rmid := (other_rmid=((my_rmid+1) mod 8)); check_retransmission := (other_rmid=my_rmid); check_trials := rnum<1;
+
+// All the entities
+ike_initiator_idle -> ike_initiator_ready [label = "internal_udp_ike=ready / internal_ike_udp=null, internal_ike_dns=init_epdg_discovery, internal_ike_sip=null, my_last_sent_ike_msg=null, my_last_sent_payload=null"]
+//ike_initiator_idle -> ike_initiator_ready [label = "internal_udp_ike=ready / internal_ike_udp=null, internal_dns_ike=finish_epdg_discovery, eip=3, internal_ike_sip=null"]
+
+// IKE SA INIT
+ike_initiator_ready -> ike_initiator_sa_init [label = "internal_dns_ike=finish_epdg_discovery / ike_exchange_start=true"]
+ike_initiator_sa_init -> ike_initiator_sa_init_request_sent [label = "ike_exchange_start / internal_ike_udp=send_ike_initiator_packet, my_last_sent_ike_msg=ike_sa_init, my_last_sent_payload=null, ike_exchange_start=false, role=requester, rnum=0"]
+ike_initiator_sa_init_request_sent -> ike_initiator_sa_init_response_wait [label = "internal_udp_ike=sent_ike_packet / internal_udp_ike=null"]
+ike_initiator_sa_init_response_wait -> ike_initiator_sa_init_request_sent [label = "my_ike_retransmission_needed & check_trials / internal_ike_udp=send_ike_initiator_packet, my_last_rcvd_ike_msg=ike_sa_init, my_ike_retransmission_needed=false, my_last_sent_ike_msg=ike_sa_init, my_last_sent_payload=null, rnum=rnum+1"]
+ike_initiator_sa_init_response_wait -> ike_initiator_failed [label = "my_ike_retransmission_needed & !check_trials / my_ike_retransmission_needed=false"]
+ike_initiator_sa_init_response_wait -> ike_initiator_sa_init_response_wait [label = "!check_other_imid & internal_udp_ike=rcvd_ike_packet / my_ike_retransmission_needed=true, internal_udp_ike=null"]
+ike_initiator_sa_init_response_wait -> ike_initiator_sa_init_done [label = "check_other_imid & internal_udp_ike=rcvd_ike_packet & other_last_sent_ike_msg=ike_sa_init & other_last_sent_payload=null / my_last_rcvd_ike_msg=ike_sa_init, my_last_rcvd_payload=null, ike_sa_established=true, role=null, my_imid=((my_imid+1) mod 8), internal_udp_ike=null"]
+
+// IKE AUTH 1
+ike_initiator_sa_init_done -> ike_initiator_auth_1 [label = "!ike_exchange_start / ike_exchange_start=true"]
+// root certificate provisioned -> cfgrequest/certreq
+ike_initiator_auth_1 -> ike_initiator_auth_1_request_sent [label = "ike_exchange_start & root_certificate_is_provisioned / internal_ike_udp=send_ike_initiator_packet, my_last_sent_ike_msg=ike_auth_1, my_last_sent_payload=configuration_and_certreq, ike_exchange_start=false, root_certificate_is_provisioned=true, role=requester, rnum=0"]
+// !root certificate provisioned -> cfgrequest
+ike_initiator_auth_1 -> ike_initiator_auth_1_request_sent [label = "ike_exchange_start & !root_certificate_is_provisioned / internal_ike_udp=send_ike_initiator_packet, my_last_sent_ike_msg=ike_auth_1, my_last_sent_payload=configuration, ike_exchange_start=false, root_certificate_is_provisioned=false, role=requester, rnum=0"]
+ike_initiator_auth_1_request_sent -> ike_initiator_auth_1_response_wait [label = "internal_udp_ike=sent_ike_packet / internal_udp_ike=null"]
+ike_initiator_auth_1_response_wait -> ike_initiator_auth_1_request_sent [label = "my_ike_retransmission_needed & check_trials & !root_certificate_is_provisioned / internal_ike_udp=send_ike_initiator_packet, my_last_sent_ike_msg=ike_auth_1, my_last_sent_payload=configuration, my_ike_retransmission_needed=false, rnum=rnum+1"]
+ike_initiator_auth_1_response_wait -> ike_initiator_auth_1_request_sent [label = "my_ike_retransmission_needed & check_trials & root_certificate_is_provisioned / internal_ike_udp=send_ike_initiator_packet, my_last_sent_ike_msg=ike_auth_1, my_last_sent_payload=configuration_and_certreq, my_ike_retransmission_needed=false, rnum=rnum+1"]
+ike_initiator_auth_1_response_wait -> ike_initiator_failed [label = "my_ike_retransmission_needed & !check_trials / my_ike_retransmission_needed=false"]
+ike_initiator_auth_1_response_wait -> ike_initiator_auth_1_response_wait [label = "!check_other_imid & internal_udp_ike=rcvd_ike_packet / my_ike_retransmission_needed=true, internal_udp_ike=null"]
+// root certificate provisioned rcvd certificate/auth/eap-request-aka-challenge -> done
+ike_initiator_auth_1_response_wait -> ike_initiator_auth_1_done [label = "check_other_imid & internal_udp_ike=rcvd_ike_packet & root_certificate_is_provisioned & other_last_sent_ike_msg=ike_auth_1 / my_last_rcvd_ike_msg=ike_auth_1, my_last_rcvd_payload=certificate_authentication_eap-request-aka-challenge, role=null, my_imid=((my_imid+1) mod 8), internal_udp_ike=null"]
+// root certificate provisioned rcvd auth/eap-request-aka-challenge -> done
+ike_initiator_auth_1_response_wait -> ike_initiator_auth_1_done [label = "check_other_imid & internal_udp_ike=rcvd_ike_packet & root_certificate_is_provisioned & other_last_sent_ike_msg=ike_auth_1 / my_last_rcvd_ike_msg=ike_auth_1, my_last_rcvd_payload=authentication_eap-request-aka-challenge, role=null, my_imid=((my_imid+1) mod 8), internal_udp_ike=null"]
+// root certificate provisioned rcvd eap-request-aka-challenge -> done
+ike_initiator_auth_1_response_wait -> ike_initiator_auth_1_done [label = "check_other_imid & internal_udp_ike=rcvd_ike_packet & root_certificate_is_provisioned & other_last_sent_ike_msg=ike_auth_1 / my_last_rcvd_ike_msg=ike_auth_1, my_last_rcvd_payload=eap-request-aka-challenge, role=null, my_imid=((my_imid+1) mod 8), internal_udp_ike=null"]
+// !root certificate provisioned rcvd auth/eap-request-aka-challenge -> done
+ike_initiator_auth_1_response_wait -> ike_initiator_auth_1_done [label = "check_other_imid & internal_udp_ike=rcvd_ike_packet & !root_certificate_is_provisioned & other_last_sent_ike_msg=ike_auth_1 / my_last_rcvd_ike_msg=ike_auth_1, my_last_rcvd_payload=authentication_eap-request-aka-challenge, role=null, my_imid=((my_imid+1) mod 8), internal_udp_ike=null"]
+// !root certificate provisioned rcvd eap-request-aka-challenge -> done
+ike_initiator_auth_1_response_wait -> ike_initiator_auth_1_done [label = "check_other_imid & internal_udp_ike=rcvd_ike_packet & !root_certificate_is_provisioned & other_last_sent_ike_msg=ike_auth_1 & other_last_sent_payload=eap-request-aka-challenge / my_last_rcvd_ike_msg=ike_auth_1, my_last_rcvd_payload=eap-request-aka-challenge, role=null, my_imid=((my_imid+1) mod 8), internal_udp_ike=null"]
+
+// IKE AUTH 2
+ike_initiator_auth_1_done -> ike_initiator_auth_2 [label = "!ike_exchange_start / ike_exchange_start=true"]
+ike_initiator_auth_2 -> ike_initiator_auth_2_request_sent [label = "ike_exchange_start / internal_ike_udp=send_ike_initiator_packet, my_last_sent_ike_msg=ike_auth_2, my_last_sent_payload=eap-response-aka-challenge, ike_exchange_start=false, role=requester, rnum=0"]
+ike_initiator_auth_2_request_sent -> ike_initiator_auth_2_response_wait [label = "internal_udp_ike=sent_ike_packet / internal_udp_ike=null"]
+ike_initiator_auth_2_response_wait -> ike_initiator_auth_2_request_sent [label = "my_ike_retransmission_needed & check_trials / internal_ike_udp=send_ike_initiator_packet, my_last_sent_ike_msg=ike_auth_2, my_last_sent_payload=eap-response-aka-challenge, my_ike_retransmission_needed=false, rnum=rnum+1"]
+ike_initiator_auth_2_response_wait -> ike_initiator_failed [label = "my_ike_retransmission_needed & !check_trials / my_ike_retransmission_needed=false"]
+ike_initiator_auth_2_response_wait -> ike_initiator_auth_2_response_wait [label = "!check_other_imid & internal_udp_ike=rcvd_ike_packet / my_ike_retransmission_needed=true, internal_udp_ike=null"]
+ike_initiator_auth_2_response_wait -> ike_initiator_auth_2_done [label = "check_other_imid & internal_udp_ike=rcvd_ike_packet & other_last_sent_ike_msg=ike_auth_2 & other_last_sent_payload=eap-success / my_last_rcvd_ike_msg=ike_auth_2, my_last_rcvd_payload=eap-success, received_eap_success=true, role=null, my_imid=((my_imid+1) mod 8), internal_udp_ike=null"]
+
+// IKE AUTH 3
+ike_initiator_auth_2_done -> ike_initiator_auth_3 [label = "!ike_exchange_start / ike_exchange_start=true"]
+ike_initiator_auth_3 -> ike_initiator_auth_3_request_sent [label = "ike_exchange_start / internal_ike_udp=send_ike_initiator_packet, my_last_sent_ike_msg=ike_auth_3, my_last_sent_payload=authentication, ike_exchange_start=false, role=requester, rnum=0"]
+ike_initiator_auth_3_request_sent -> ike_initiator_auth_3_response_wait [label = "internal_udp_ike=sent_ike_packet / internal_udp_ike=null"]
+ike_initiator_auth_3_response_wait -> ike_initiator_auth_3_request_sent [label = "my_ike_retransmission_needed & check_trials / internal_ike_udp=send_ike_initiator_packet, my_last_sent_ike_msg=ike_auth_3, my_last_sent_payload=authentication, my_ike_retransmission_needed=false, rnum=rnum+1"]
+ike_initiator_auth_3_response_wait -> ike_initiator_failed [label = "my_ike_retransmission_needed & !check_trials / my_ike_retransmission_needed=false"]
+ike_initiator_auth_3_response_wait -> ike_initiator_auth_3_response_wait [label = "!check_other_imid & internal_udp_ike=rcvd_ike_packet / my_ike_retransmission_needed=true, internal_udp_ike=null"]
+ike_initiator_auth_3_response_wait -> ike_initiator_auth_3_done [label = "check_other_imid & internal_udp_ike=rcvd_ike_packet & other_last_sent_ike_msg=ike_auth_3 & other_last_sent_payload=configuration_and_authentication / my_last_rcvd_ike_msg=ike_auth_3, my_last_rcvd_payload=configuration_and_authentication, child_sa_established=true, role=null, my_imid=((my_imid+1) mod 8), internal_udp_ike=null"]
+
+//// IKE Keepalive
+//ike_initiator_auth_3_done -> ike_initiator_keepalive [label = "ike_sa_established & child_sa_established / internal_ike_sip=child_sa_established"]
+//ike_initiator_keepalive_done -> ike_initiator_keepalive [label = "!ike_exchange_start / ike_exchange_start=true"]
+//ike_initiator_keepalive -> ike_initiator_keepalive_request_sent [label = "ike_exchange_start / internal_ike_udp=send_ike_initiator_packet, my_last_sent_ike_msg=ike_keepalive, my_last_sent_payload=null, ike_exchange_start=false, role=requester, rnum=0"]
+//ike_initiator_keepalive_request_sent -> ike_initiator_keepalive_response_wait [label = "internal_udp_ike=sent_ike_packet / internal_udp_ike=null"]
+//ike_initiator_keepalive_response_wait -> ike_initiator_keepalive_request_sent [label = "my_ike_retransmission_needed & check_trials / internal_ike_udp=send_ike_initiator_packet, my_last_sent_ike_msg=ike_keepalive, my_last_sent_payload=null, my_ike_retransmission_needed=false, rnum=rnum+1"]
+//ike_initiator_keepalive_response_wait -> ike_initiator_failed [label = "my_ike_retransmission_needed & !check_trials / my_ike_retransmission_needed=false"]
+//ike_initiator_keepalive_response_wait -> ike_initiator_keepalive_response_wait [label = "!check_other_imid & internal_udp_ike=rcvd_ike_packet / my_ike_retransmission_needed=true, internal_udp_ike=null"]
+//ike_initiator_keepalive_response_wait -> ike_initiator_keepalive_done [label = "check_other_imid & internal_udp_ike=rcvd_ike_packet & other_last_sent_ike_msg=ike_keepalive / my_last_rcvd_ike_msg=ike_keepalive, my_last_rcvd_payload=null, role=null, my_imid=((my_imid+1) mod 8), internal_udp_ike=null"]
+//
+//ike_initiator_keepalive -> ike_initiator_keepalive_request_wait [label = "ike_exchange_start / ike_exchange_start=false, role=responder, rnum=0"]
+//ike_initiator_keepalive_request_wait -> ike_initiator_keepalive_response_sent [label = "check_retransmission & internal_udp_ike=rcvd_ike_packet & other_last_sent_ike_msg=ike_keepalive / my_last_rcvd_ike_msg=ike_keepalive, internal_ike_udp=send_ike_initiator_packet, my_last_sent_ike_msg=ike_keepalive, internal_udp_ike=null"]
+//ike_initiator_keepalive_request_wait -> ike_initiator_keepalive_response_sent [label = "check_other_rmid & internal_udp_ike=rcvd_ike_packet & dynamic_update_enabled & other_last_sent_ike_msg=ike_keepalive / my_rmid=((my_rmid+1) mod 8), rip=rcvd_src_addr, child_sa_established=true, my_last_rcvd_ike_msg=ike_keepalive, my_last_rcvd_payload=null, internal_ike_udp=send_ike_initiator_packet, my_last_sent_ike_msg=ike_keepalive, internal_udp_ike=null"]
+//ike_initiator_keepalive_request_wait -> ike_initiator_keepalive_response_sent [label = "check_other_rmid & internal_udp_ike=rcvd_ike_packet & !dynamic_update_enabled & other_last_sent_ike_msg=ike_keepalive / my_last_rcvd_ike_msg=ike_keepalive, my_last_rcvd_payload=null, my_rmid=((my_rmid+1) mod 8), child_sa_established=true, internal_ike_udp=send_ike_initiator_packet, my_last_sent_ike_msg=ike_keepalive, internal_udp_ike=null"]
+//ike_initiator_keepalive_request_wait -> ike_initiator_keepalive_request_wait [label = "!check_other_rmid & internal_udp_ike=rcvd_ike_packet / other_ike_retransmission_needed=true, internal_udp_ike=null"]
+//ike_initiator_keepalive_response_sent -> ike_initiator_keepalive_done [label = "internal_udp_ike=sent_ike_packet / role=null, internal_udp_ike=null"]
+
+}

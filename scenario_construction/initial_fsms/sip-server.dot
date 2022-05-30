@@ -1,0 +1,74 @@
+digraph SIP_SERVER{
+rankdir = LR;
+size = "8,5"
+node [shape = circle, label="sip_server_idle"] sip_server_idle;
+node [shape = circle, label="sip_server_ready"] sip_server_ready;
+node [shape = circle, label="sip_server_failed"] sip_server_failed;
+
+node [shape = circle, label="sip_server_register"] sip_server_register;
+node [shape = circle, label="sip_server_register_wait"] sip_server_register_wait;
+node [shape = circle, label="sip_server_register_challenge_sent"] sip_server_register_challenge_sent;
+node [shape = circle, label="sip_server_register_response_wait"] sip_server_register_response_wait;
+node [shape = circle, label="sip_server_register_ok_sent"] sip_server_register_ok_sent;
+node [shape = circle, label="sip_server_register_unauthorized_sent"] sip_server_register_unauthorized_sent;
+node [shape = circle, label="sip_server_register_internal_error_sent"] sip_server_register_internal_error_sent;
+node [shape = circle, label="sip_server_register_done"] sip_server_register_done;
+
+node [shape = circle, label="sip_server_invite"] sip_server_invite;
+node [shape = circle, label="sip_server_invite_wait"] sip_server_invite_wait;
+node [shape = circle, label="sip_server_invite_sent"] sip_server_invite_sent;
+node [shape = circle, label="sip_server_invite_trying_and_progress_wait"] sip_server_invite_trying_and_progress_wait;
+node [shape = circle, label="sip_server_invite_trying_and_progress_sent"] sip_server_invite_trying_and_progress_sent;
+node [shape = circle, label="sip_server_invite_prack_wait"] sip_server_invite_prack_wait;
+node [shape = circle, label="sip_server_invite_prack_sent"] sip_server_invite_prack_sent;
+node [shape = circle, label="sip_server_invite_ok_wait"] sip_server_invite_ok_wait;
+node [shape = circle, label="sip_server_invite_ok_sent"] sip_server_invite_ok_sent;
+node [shape = circle, label="sip_server_invite_ack_wait"] sip_server_invite_ack_wait;
+node [shape = circle, label="sip_server_invite_ack_sent"] sip_server_invite_ack_sent;
+node [shape = circle, label="sip_server_invite_done"] sip_server_invite_done;
+node [shape = circle, label="sip_server_call"] sip_server_call;
+
+//initial_state: sip_server_idle
+//environment variables: register_timeout;
+//state variables: internal_sip_udp{send_sip_server_packet, send_sip_client_packet, null}<null>; esp_dynamic_update_enabled{true, false}<false>; sip_msg_start{true, false}<false>; ims_client_authenticated{true, false}<false>; binding_created{true, false}<false>; session_established{true, false}<false>; caller{true, false}<false>; my_sip_retransmission_needed{true, false}<false>;
+
+sip_server_idle -> sip_server_ready [label = "internal_udp_sip=ready / internal_sip_udp=null"]
+sip_server_ready -> sip_server_register [label = "internal_ike_sip=child_sa_established / sip_msg_start=true, internal_ike_sip=null"]
+sip_server_ready -> sip_server_register [label = "internal_ike_sip=child_sa_established / sip_msg_start=true, esp_dynamic_update_enabled=true, internal_ike_sip=null"]
+
+// Successful New Registration (RFC 3665)
+sip_server_register -> sip_server_register_wait [label = "sip_msg_start / sip_msg_start=false"]
+sip_server_register_wait -> sip_server_register_challenge_sent [label="internal_udp_sip=rcvd_sip_packet & !esp_dynamic_update_enabled / internal_sip_udp=sent_sip_server_packet, internal_udp_sip=null"]
+sip_server_register_wait -> sip_server_register_challenge_sent [label="internal_udp_sip=rcvd_sip_packet & esp_dynamic_update_enabled / iip=rcvd_src_addr, internal_sip_udp=sent_sip_server_packet, internal_udp_sip=null"]
+sip_server_register_challenge_sent -> sip_server_register_response_wait [label="internal_udp_sip=sent_sip_packet / internal_udp_sip=null"]
+sip_server_register_response_wait -> sip_server_register_ok_sent [label="internal_udp_sip=rcvd_sip_packet & !esp_dynamic_update_enabled / internal_sip_udp=sent_sip_server_packet, ims_client_authenticated=true, internal_udp_sip=null"]
+sip_server_register_response_wait -> sip_server_register_ok_sent [label="internal_udp_sip=rcvd_sip_packet & esp_dynamic_update_enabled / iip=rcvd_src_addr, internal_sip_udp=sent_sip_server_packet, ims_client_authenticated=true, internal_udp_sip=null"]
+sip_server_register_ok_sent -> sip_server_register_done [label="internal_udp_sip=sent_sip_packet / binding_created=true, internal_udp_sip=null"]
+//sip_server_register_done -> sip_server_invite [label="ims_client_authenticated & binding_created / ike_exchange_start=true"]
+//
+//// Timeout for REGISTER F3 (need to clear communication channels)
+//sip_server_register_response_wait -> sip_server_register [label="register_timeout / sip_msg_start=true, internal_udp_sip=null"]
+//sip_server_register_response_wait -> sip_server_register_internal_error_sent [label="register_timeout / internal_sip_udp=sent_sip_server_packet, internal_udp_sip=null"]
+//sip_server_register_internal_error_sent -> sip_server_register [label="internal_udp_sip=sent_sip_packet / sip_msg_start=true, internal_udp_sip=null"]
+//
+//// Unsuccessful Registration
+//sip_server_register_response_wait -> sip_server_register_unauthorized_sent [label="internal_udp_sip=rcvd_sip_packet / internal_sip_udp=sent_sip_server_packet, ims_client_authenticated=false, internal_udp_sip=null"]
+//sip_server_register_unauthorized_sent -> sip_server_register [label="internal_udp_sip=sent_sip_packet / sip_msg_start=true, internal_udp_sip=null"]
+//
+//// Receiving a call
+//sip_server_invite -> sip_server_invite_wait [label = "sip_msg_start / sip_msg_start=false"]
+//sip_server_invite_wait -> sip_server_invite_trying_and_progress_sent [label = "internal_udp_sip=rcvd_sip_packet / internal_sip_udp=send_sip_server_packet, internal_udp_sip=null"]
+//sip_server_invite_trying_and_progress_sent -> sip_server_invite_prack_wait [label = "internal_udp_sip=sent_sip_packet / internal_udp_sip=null"]
+//sip_server_invite_prack_wait -> sip_server_invite_ok_sent [label = "internal_udp_sip=rcvd_sip_packet / internal_sip_udp=send_sip_server_packet, internal_udp_sip=null"]
+//sip_server_invite_ok_sent -> sip_server_invite_ack_wait [label = "internal_udp_sip=sent_sip_packet / internal_udp_sip=null"]
+//sip_server_invite_ack_wait -> sip_server_invite_done [label = "internal_udp_sip=rcvd_sip_packet / session_established=true, internal_udp_sip=null"]
+//
+//// Making a call
+//sip_server_invite -> sip_server_invite_sent [label = "sip_msg_start & caller / internal_udp_sip=send_sip_server_packet, sip_msg_start=false"]
+//sip_server_invite_sent -> sip_server_invite_trying_and_progress_wait [label = "internal_udp_sip=sent_sip_packet / internal_udp_sip=null"]
+//sip_server_invite_trying_and_progress_wait -> sip_server_invite_prack_sent [label = "internal_udp_sip=rcvd_sip_packet / internal_sip_udp=send_sip_server_packet, internal_udp_sip=null"]
+//sip_server_invite_prack_sent -> sip_server_invite_ok_wait [label = "internal_udp_sip=sent_sip_packet / internal_udp_sip=null"]
+//sip_server_invite_ok_wait -> sip_server_invite_ack_sent [label = "internal_udp_sip=rcvd_sip_packet / internal_sip_udp=send_sip_server_packet, internal_udp_sip=null"]
+//sip_server_invite_ack_sent -> sip_server_invite_done [label = "internal_udp_sip=sent_sip_packet / session_established=true, internal_udp_sip=null"]
+//sip_server_invite_done -> sip_server_call [label = "session_established / _"]
+}

@@ -1,0 +1,30 @@
+digraph UDP{
+rankdir = LR;
+size = "8,5"
+node [shape = circle, label="udp_idle"] udp_idle;
+node [shape = circle, label="udp_ready"] udp_ready;
+node [shape = circle, label="udp_set"] udp_set;
+
+//initial_state: udp_idle
+//state variables: internal_udp_dns{ready, sent_dns_packet, rcvd_dns_packet, null}<null>; internal_udp_ike{ready, sent_ike_packet, rcvd_ike_packet, null}<null>; internal_udp_sip{ready, sent_sip_packet, rcvd_sip_packet, null}<null>; internal_udp_ip{send_ip_packet, null}<null>;
+//number variables: target_port{0, 5}<0, rcvd_src_port, ike_port, sip_port, dns_port>; target_addr{0, 5}<0, rcvd_src_addr, eip, dip>;
+//define: dst_port_check := (rcvd_dst_port>0 & (rcvd_dst_port=dns_port | rcvd_dst_port=ike_port | rcvd_dst_port=sip_port));
+
+udp_idle -> udp_ready [label = "internal_ip_udp=ip_set / internal_udp_dns=ready, internal_udp_ike=ready, internal_udp_sip=ready, internal_ip_udp=null"]
+
+udp_ready -> udp_ready [label = "internal_ip_udp=rcvd_ip_packet & rcvd_dst_port=dns_port / internal_udp_dns=rcvd_dns_packet, internal_ip_udp=null"]
+udp_ready -> udp_ready [label = "internal_ip_udp=rcvd_ip_packet & rcvd_dst_port=ike_port / internal_udp_ike=rcvd_ike_packet, internal_ip_udp=null"]
+udp_ready -> udp_ready [label = "internal_ip_udp=rcvd_ip_packet & rcvd_dst_port=sip_port / internal_udp_sip=rcvd_sip_packet, internal_ip_udp=null"]
+udp_ready -> udp_ready [label = "internal_ip_udp=rcvd_ip_packet & !dst_port_check / internal_ip_udp=null"]
+
+udp_ready -> udp_set [label = "internal_dns_udp=send_dns_client_packet / internal_udp_ip=send_ip_packet, target_addr=dip, target_port=dns_port, internal_dns_udp=null"]
+udp_ready -> udp_set [label = "internal_dns_udp=send_dns_server_packet / internal_udp_ip=send_ip_packet, target_addr=rcvd_src_addr, target_port=rcvd_src_port, internal_dns_udp=null"]
+udp_ready -> udp_set [label = "internal_ike_udp=send_ike_initiator_packet / internal_udp_ip=send_ip_packet, target_addr=eip, target_port=ike_port, internal_ike_udp=null"]
+udp_ready -> udp_set [label = "internal_ike_udp=send_ike_responder_packet / internal_udp_ip=send_ip_packet, target_addr=rcvd_src_addr, target_port=rcvd_src_port, internal_ike_udp=null"]
+udp_ready -> udp_set [label = "internal_sip_udp=send_sip_client_packet / internal_udp_ip=send_ip_packet, target_addr=eip, target_port=sip_port, internal_sip_udp=null"]
+udp_ready -> udp_set [label = "internal_sip_udp=send_sip_server_packet / internal_udp_ip=send_ip_packet, target_addr=rcvd_src_addr, target_port=rcvd_src_port, internal_sip_udp=null"]
+
+udp_set -> udp_ready [label = "internal_ip_udp=sent_ip_packet & target_port=dns_port / internal_udp_dns=sent_dns_packet, internal_ip_udp=null"]
+udp_set -> udp_ready [label = "internal_ip_udp=sent_ip_packet & target_port=ike_port / internal_udp_ike=sent_ike_packet, internal_ip_udp=null"]
+udp_set -> udp_ready [label = "internal_ip_udp=sent_ip_packet & target_port=sip_port / internal_udp_sip=sent_sip_packet, internal_ip_udp=null"]
+}

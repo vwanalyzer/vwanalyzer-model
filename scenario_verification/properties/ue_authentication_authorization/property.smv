@@ -1,0 +1,118 @@
+# Properties
+
+1. The IKE_SA_INIT Request message (TS 33.402/TS 36.523)
+
+A UE transmits an IKE_SA_INIT request message to the ePDG when the UE has acquired the IP address of the ePDG
+That is, once a UE sends an IKE_SA_INIT request message, the UE has acquired the IP address of the ePDG
+
+LTLSPEC
+G (ue_ike-initiator_state=ike_initiator_sa_init_request_sent
+  & !dns_spoofing_enabled
+-> 
+  ue_dns-client_state=dns_client_done
+  & dns_dns-server_state=dns_server_done
+  & ue_eip = epdg_eip)
+
+2. NAT_DETECTION_SOURCE_IP and NAT_DETECTION_DESTINATION_IP by a UE (RFC5996)
+A UE MUST include a Notify payload of type NAT_DETECTION_SOURCE_IP and NAT_DETECTION_DESTINATION_IP, which is a SHA-1 digest of the SPIs, IP address, and port from which this packet was sent. (Instead of the SHA-1 digest, our model consider the original values (e.g., SPIs or IP address) because of its cryptographic assumption)
+
+
+3. The IKE_SA_INIT Response message (TS 33.402/TS 36.523)
+The ePDG transmits an IKE_SA_INIT message
+
+LTLSPEC
+G (epdg_ike-responder_state=ike_responder_sa_init_request_wait
+->
+  F epdg_ike-responder_state=ike_responder_sa_init_response_sent)
+
+4. NAT_DETECTION_SOURCE_IP and NAT_DETECTION_DESTINATION_IP by an ePDG (RFC5996)
+A ePDG MUST include a Notify payload of type NAT_DETECTION_SOURCE_IP and NAT_DETECTION_DESTINATION_IP, which is a SHA-1 digest of the SPIs, IP address, and port from which this packet was sent. (Instead of the SHA-1 digest, our model consider the original values (e.g., SPIs or IP address) because of its cryptographic assumption)
+
+
+5. The dynamic update mechanism enabled (RFC5996)
+
+Whenever the ePDG receives a packet whose integrity protection validates and if it is not behind a NAT, it SHOULD dynamically update the address.
+
+LTLSPEC
+G (ue_phymac_state=phymac_wifi
+  & epdg_phymac_state=phymac_eth
+  & ue_ike-initiator_state=ike_initiator_sa_init_response_wait
+  & epdg_ike-responder_state=ike_responder_sa_init_response_sent
+  & epdg_ike_sa_established
+  & ue_rnum<2
+-> 
+  epdg_dynamic_update_enabled)
+
+The following should generate the counterexample
+
+LTLSPEC
+G (ue_phymac_state=phymac_wifi
+  & epdg_phymac_state=phymac_eth
+  & ue_ike-initiator_state=ike_initiator_sa_init_response_wait
+  & epdg_ike-responder_state=ike_responder_sa_init_response_sent
+  & epdg_ike_sa_established
+  & ue_rnum<2
+-> 
+  !epdg_dynamic_update_enabled)
+   
+6. The IKE_SA_INIT exchange (RFC 5996)
+All IKE_SA_INIT exchanges MUST complete before any other exchange type
+    
+7. The IKE_AUTH message (TS 33.402/TS 36.523) 
+Upon receipt of an IKE_SA_INIT response, the UE shall send an IKE_AUTH request message to the ePDG including a Configuration payload.
+
+8. The IKE_AUTH message (TS 33.402)
+If the UE is provisioned with the ePDG root certificate, it shall include the CERTREQ payload within the IKE_AUTH request message to request ePDG's certificate.
+
+9. The IKE_AUTH message (TS 33.402/RFC 5996)
+Public key signature based authentication with certificates shall be used to authenticate the ePDG
+
+10. The IKE_AUTH message (TS 33.402/TS 36.523)
+The ePDG transmits an IKE_AUTH Response message including an EAP-Request/AKA-Challenge
+
+11. The IKE_AUTH message (TS 33.402/TS 36.523)
+With a UE has transmissted an IKE_AUTH Request message containing the configuration payload and the UE receives an IKE_AUTH Response message including an EAP-Request/AKA Challenge, the UE transmits an IKE_AUTH Request message containing the correct EAP-Response/AKA-Challenge
+
+G(X(X (ue_ike-initiator_state=ike_initiator_auth_2_request_sent
+  & ue_last_sent_ike_msg=ike_auth_2 & ue_last_sent_payload=eap-response-aka-challenge)
+  -> ue_ike-initiator_state=ike_initiator_auth_2)
+->
+ue_ike-initiator_state=ike_initiator_auth_1_done)
+
+G(X(X (ue_ike-initiator_state=ike_initiator_auth_2_request_sent
+  & ue_last_sent_ike_msg=ike_auth_2 & ue_last_sent_payload=eap-response-aka-challenge)
+  -> ue_ike-initiator_state=ike_initiator_auth_2)
+->
+ue_ike-initiator_state!=ike_initiator_auth_1_done)
+
+12. The IKE_AUTH message (TS 33.402/TS 36.523)
+The ePDG transmits an IKE_AUTH Response message including an EAP-Success
+
+13. The Authentication Payload by a UE (TS 33.402/TS 36.523/RFC5996)
+In case that a UE has transmitted an IKE_AUTH Request message containing an EAP-Response/AKA-Challenge, when the UE receives an IKE_AUTH Response message including EAP-Success, the UE transmits an IKE_AUTH Request message with Authentication payload
+
+G(X(X (ue_ike-initiator_state=ike_initiator_auth_3_request_sent
+      & ue_last_sent_ike_msg=ike_auth_3 & ue_last_sent_payload=authentication)
+    -> O (ue_ike-initiator_state=ike_initiator_auth_2_done
+          & ue_last_rcvd_ike_msg=ike_auth_2 & ue_last_rcvd_payload=eap-success))
+  -> O (ue_ike_initiator_state=ike_initiator_auth_2_
+        & ue_last_sent_ike_msg=ike_auth_2 & ue_last_rcvd_payload=eap-response-aka-challenge))
+
+14. The Authentication Payload by an ePDG (TS 33.402/TS 36.523/RFC5996)
+The MSK shall be used by the ePDG to generate the AUTH parameter in order to authenticate the IKE_SA_INIT phase messages
+
+15. The Configuration Payload Payload by an ePDG (TS 33.402/TS 36.523)
+
+16. Denial-of-VoWiFi-Service Scenario 1 (RFC5996)
+In case that the ePDG enables the dynamic update mechanism, the communication channel between the UE and the ePDG should be stable.
+
+LTLSPEC
+G (ue_phymac_state=phymac_wifi
+  & epdg_phymac_state=phymac_eth
+  & ue_ike-initiator_state=ike_initiator_auth_1_response_wait
+  & epdg_ike-responder_state=ike_responder_auth_1_response_sent
+  & epdg_dynamic_update_enabled
+  & interception_enabled
+  & ue_rnum<2
+-> 
+  epdg_iip=nat_nip)

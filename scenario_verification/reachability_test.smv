@@ -1,0 +1,178 @@
+## Reachability to a state where the IKE_SA_INIT exchange is complete
+#LTLSPEC
+#G (G (ue_powered_on 
+#  & epdg_powered_on
+#  & dns_powered_on
+#  & ue_phymac_state = phymac_wifi 
+#  & epdg_phymac_state = phymac_eth
+#  & dns_phymac_state = phymac_eth
+#  & !dns_spoofing_enabled
+#  & ue_rnum < 1)
+#->
+#F ue_ike-initiator_state = ike_initiator_sa_init_done
+#  & epdg_ike-responder_state = ike_responder_sa_init_done)
+
+# Reachability to a state where the IKE_AUTH_1 exchange is complete
+#LTLSPEC
+#G (G (ue_powered_on 
+#  & epdg_powered_on
+#  & dns_powered_on
+#  & ue_phymac_state = phymac_wifi 
+#  & epdg_phymac_state = phymac_eth
+#  & dns_phymac_state = phymac_eth
+#  & !dns_spoofing_enabled
+#  & ue_ike_sa_established
+#  & epdg_ike_sa_established
+#  & ue_rnum < 1)
+#->
+#F ue_ike-initiator_state = ike_initiator_auth_1_done
+#  & epdg_ike-responder_state = ike_responder_auth_1_done)
+
+## Reachability to a state where the IKE_AUTH_2 exchange is complete when a root certificate is provisioned
+#LTLSPEC
+#G (G (ue_powered_on 
+#  & epdg_powered_on
+#  & dns_powered_on
+#  & ue_phymac_state = phymac_wifi 
+#  & epdg_phymac_state = phymac_eth
+#  & dns_phymac_state = phymac_eth
+#  & !dns_spoofing_enabled
+#  & ue_ike_sa_established
+#  & epdg_ike_sa_established
+#  & ue_root_certificate_is_provisioned
+#  & epdg_received_certreq
+#  & epdg_sent_certificate
+#  & epdg_sent_auth
+#  & ue_rnum < 1)
+#->
+#F ue_ike-initiator_state = ike_initiator_auth_2_done
+#  & epdg_ike-responder_state = ike_responder_auth_2_done)
+#
+## Reachability to a state where the IKE_AUTH_2 exchange is complete when a root certificate is not provisioned and epdg sends AUTH
+#LTLSPEC
+#G (G (ue_powered_on 
+#  & epdg_powered_on
+#  & dns_powered_on
+#  & ue_phymac_state = phymac_wifi 
+#  & epdg_phymac_state = phymac_eth
+#  & dns_phymac_state = phymac_eth
+#  & !dns_spoofing_enabled
+#  & ue_ike_sa_established
+#  & epdg_ike_sa_established
+#  & !ue_root_certificate_is_provisioned
+#  & !epdg_received_certreq
+#  & !epdg_sent_certificate
+#  & epdg_sent_auth
+#  & ue_rnum < 1)
+#->
+#F ue_ike-initiator_state = ike_initiator_auth_2_done
+#  & epdg_ike-responder_state = ike_responder_auth_2_done)
+#
+## Reachability to a state where the IKE_AUTH_2 exchange is complete when a root certificate is not provisioned and epdg does not send AUTH
+#LTLSPEC
+#G (G (ue_powered_on 
+#  & epdg_powered_on
+#  & dns_powered_on
+#  & ue_phymac_state = phymac_wifi 
+#  & epdg_phymac_state = phymac_eth
+#  & dns_phymac_state = phymac_eth
+#  & !dns_spoofing_enabled
+#  & ue_ike_sa_established
+#  & epdg_ike_sa_established
+#  & !ue_root_certificate_is_provisioned
+#  & !epdg_received_certreq
+#  & !epdg_sent_certificate
+#  & !epdg_sent_auth
+#  & ue_rnum < 1)
+#->
+#F ue_ike-initiator_state = ike_initiator_auth_2_done
+#  & epdg_ike-responder_state = ike_responder_auth_2_done)
+
+## Reachability to a state where the IKE_AUTH_3 exchange is complete when a root certificate is provisioned
+#LTLSPEC
+#G (G (ue_powered_on 
+#  & epdg_powered_on
+#  & dns_powered_on
+#  & ue_phymac_state = phymac_wifi 
+#  & epdg_phymac_state = phymac_eth
+#  & dns_phymac_state = phymac_eth
+#  & !dns_spoofing_enabled
+#  & ue_ike_sa_established
+#  & epdg_ike_sa_established
+#  & ue_root_certificate_is_provisioned
+#  & epdg_received_certreq
+#  & epdg_sent_certificate
+#  & epdg_sent_auth
+#  & epdg_sent_eap_success
+#  & ue_received_eap_success
+#  & ue_rnum < 1)
+#->
+#F ue_ike-initiator_state = ike_initiator_auth_3_done
+#  & epdg_ike-responder_state = ike_responder_auth_3_done)
+#
+## Reachability to a state where the IKE_AUTH_3 exchange is complete when a root certificate is not provisioned and an auth is sent
+#LTLSPEC
+#G (G (ue_powered_on 
+#  & epdg_powered_on
+#  & dns_powered_on
+#  & ue_phymac_state = phymac_wifi 
+#  & epdg_phymac_state = phymac_eth
+#  & dns_phymac_state = phymac_eth
+#  & !dns_spoofing_enabled
+#  & ue_ike_sa_established
+#  & epdg_ike_sa_established
+#  & !ue_root_certificate_is_provisioned
+#  & !epdg_received_certreq
+#  & !epdg_sent_certificate
+#  & epdg_sent_auth
+#  & epdg_sent_eap_success
+#  & ue_received_eap_success
+#  & ue_rnum < 1)
+#->
+#F ue_ike-initiator_state = ike_initiator_auth_3_done
+#  & epdg_ike-responder_state = ike_responder_auth_3_done)
+#
+## Reachability to a state where the IKE_AUTH_3 exchange is complete when a root certificate is not provisioned and an auth is not sent
+#LTLSPEC
+#G (G (ue_powered_on 
+#  & epdg_powered_on
+#  & dns_powered_on
+#  & ue_phymac_state = phymac_wifi 
+#  & epdg_phymac_state = phymac_eth
+#  & dns_phymac_state = phymac_eth
+#  & !dns_spoofing_enabled
+#  & ue_ike_sa_established
+#  & epdg_ike_sa_established
+#  & !ue_root_certificate_is_provisioned
+#  & !epdg_received_certreq
+#  & !epdg_sent_certificate
+#  & !epdg_sent_auth
+#  & epdg_sent_eap_success
+#  & ue_received_eap_success
+#  & ue_rnum < 1)
+#->
+#F ue_ike-initiator_state = ike_initiator_auth_3_done
+#  & epdg_ike-responder_state = ike_responder_auth_3_done)
+
+# Reachability to a state where the IKE_AUTH_3 exchange is complete when a root certificate is not provisioned and an auth is sent
+LTLSPEC
+G (G (ue_powered_on 
+  & epdg_powered_on
+  & dns_powered_on
+  & ue_phymac_state = phymac_wifi 
+  & epdg_phymac_state = phymac_eth
+  & dns_phymac_state = phymac_eth
+  & !dns_spoofing_enabled
+  & ue_ike_sa_established
+  & epdg_ike_sa_established
+  & !ue_root_certificate_is_provisioned
+  & !epdg_received_certreq
+  & !epdg_sent_certificate
+  & epdg_sent_auth
+  & epdg_sent_eap_success
+  & ue_received_eap_success
+  & ue_rnum < 1)
+->
+F ue_sip-client_state = sip_client_register_done
+  & epdg_sip-server_state = sip_server_register_done)
+

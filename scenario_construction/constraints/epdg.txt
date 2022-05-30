@@ -1,0 +1,32 @@
+# Substitution
+my_ip: epdg_eip
+my_address: 3
+my_imid: epdg_imid
+my_rmid: epdg_rmid
+my_tbs_ike_msg: epdg_tbs_ike_msg
+my_tbs_eap_msg: epdg_tbs_eap_msg
+my_tbs_sip_msg: epdg_tbs_sip_msg
+my_last: epdg_last
+other_last: ue_last
+other_imid: ue_imid
+other_rmid: ue_rmid
+my_ike_retransmission: epdg_ike_retransmission
+other_ike_retransmission: ue_ike_retransmission
+my_sip_retransmission: epdg_sip_retransmission
+other_sip_retransmission: ue_sip_retransmission
+
+# Constant
+
+# Protocol Stack
+PHYMAC: yes
+IP: yes
+UDP: yes
+IKE-INITIATOR: no
+IKE-RESPONDER: yes
+SIP-CLIENT: no
+SIP-SERVER: yes
+DNS-CLIENT: no
+DNS-SERVER: no
+
+# Constraints
+Interface: eth

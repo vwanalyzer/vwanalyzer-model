@@ -1,0 +1,27 @@
+# Properties
+
+1. REGISTER message protection by a UE (TS 34.229)
+When registering any public user identitiy belonging to the UE, the UE shall either use an already active pair of security associations or a TLS session to protect the REGISTER requests. In other words, the child SA should be established before sending the REGISTER request to the IMS server.
+
+2. A 401 response by an ePDG 
+When the ePDG requires authentication or re-authentication of the UE, the ePDG will send a 401 (Unauthorized) response to the REGISTER request
+
+3. Another REGISTER message by a UE (TS 34.229)
+After a UE sends the initial REGISTER message and when the UE receives a 401 response with a challenge from an ePDG, the UE sends another REGISTER request using the temporary set of security associations to protect the message
+
+4. A 200 OK response by an ePDG 
+After an ePDG receives an initial REGISTER message from a UE and sends the 401 response, when it receives another REGISTER message from the UE, it should send the 200 (OK) response if the UE is autenticated with the challenge-response protocal.
+
+5. A Subscribe by a UE
+
+6. 200 OK response by an ePDG
+
+7. INVITE message by a UE
+
+8. Trying and Progress by an ePDG
+
+9. PRACK by a UE
+
+10. 200 OK by a ePDG
+
+11. ACK by a UE

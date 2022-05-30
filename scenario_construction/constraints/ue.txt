@@ -1,0 +1,33 @@
+# Substitution
+my_ip: ue_uip
+my_address: nat_uip
+my_imid: ue_imid
+my_rmid: ue_rmid
+my_tbs_ike_msg: ue_tbs_ike_msg
+my_tbs_eap_msg: ue_tbs_eap_msg
+my_tbs_sip_msg: ue_tbs_sip_msg
+my_last: ue_last
+other_last: epdg_last
+other_imid: epdg_imid
+other_rmid: epdg_rmid
+my_ike_retransmission: ue_ike_retransmission
+other_ike_retransmission: epdg_ike_retransmission
+my_sip_retransmission: ue_sip_retransmission
+other_sip_retransmission: epdg_sip_retransmission
+
+# Constant
+ue_dip: 5
+
+# Protocol Stack
+PHYMAC: yes
+IP: yes
+UDP: yes
+IKE-INITIATOR: yes
+IKE-RESPONDER: no
+SIP-CLIENT: yes
+SIP-SERVER: no
+DNS-CLIENT: yes
+DNS-SERVER: no
+
+# Constraints
+Interface: wifi, lte

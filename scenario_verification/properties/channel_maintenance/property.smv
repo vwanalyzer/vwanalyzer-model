@@ -1,0 +1,43 @@
+# Properties
+
+1. INFORMATIONAL exchanges (RFC5996)
+INFORMATIONAL exchanges MUST ONLY occur after the initial exchanges
+
+2. INFORMATIONAL response (RFC5996)
+The recipient of an INFORMATIONAL exchange request MUST send some response; otherwise, the sender will assume the message was lost in the network and will retransmit it.
+
+3. UE initiated disconnection request (TS 36.523/RFC5996)
+The UE SHALL use the procedures defined in the IKEv2 protocol to disconnect an IPsec tunnel to the ePDG. After a UE has an established tunnel and when the UE initiates disconnection, the UE transmits an INFORMATIONAL Request message containing the delete payload.
+
+4. UE initiated disconnection response (TS 36.523/RFC5996)
+The ePDG transmits an INFORMATIONAL response message when it receives an INFORMATIONAL request message including a delete payload
+
+
+5. Denial-of-VoWiFi-Service Scenario 2 (RFC5996)
+In case that the ePDG enables the dynamic update mechanism, the communication channel between the UE and the ePDG should be stable.
+
+LTLSPEC
+G (ue_phymac_state=phymac_wifi
+  & epdg_phymac_state=phymac_eth
+  & ue_ike-initiator_state=ike_initiator_keepalive_response_wait
+  & epdg_ike-responder_state=ike_responder_keepalive_response_sent
+  & epdg_dynamic_update_enabled
+  & interception_enabled
+  & ue_rnum<2
+-> 
+  epdg_iip=nat_nip)
+
+6. Denial-of-VoWiFi-Service Scenario 3 (RFC5996)
+In case that the ePDG enables the dynamic update mechanism, the communication channel between the UE and the ePDG should be stable.
+
+LTLSPEC
+G (ue_phymac_state=phymac_wifi
+  & epdg_phymac_state=phymac_eth
+  & ue_ike-initiator_state=ike_initiator_keepalive_response_sent
+  & epdg_ike-responder_state=ike_responder_keepalive_response_wait
+  & epdg_dynamic_update_enabled
+  & interception_enabled
+  & ue_rnum<2
+-> 
+  epdg_iip=nat_nip)
+ 

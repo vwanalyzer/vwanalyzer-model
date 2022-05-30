@@ -1,0 +1,19 @@
+# Substitution
+my_ip: dns_dip
+my_address: 4
+
+# Constant
+
+# Protocol Stack
+PHYMAC: yes
+IP: yes
+UDP: yes
+IKE-INITIATOR: no
+IKE-RESPONDER: no
+SIP-SERVER: no
+SIP-CLIENT: no
+DNS-CLIENT: no
+DNS-SERVER: yes
+
+# Constraints
+Interface: eth

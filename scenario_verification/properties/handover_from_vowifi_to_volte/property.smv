@@ -1,0 +1,8 @@
+# Properties
+
+1. ePDG initiated disconnection request (TS 36.523/RFC5996)
+After an ePDG has an established tunnel and when the ePDG initiates disconnection, the ePDG transmits an INFORMATIONAL request message containing the delete payload
+
+2. ePDG initiated disconnection response (TS 36.523/RFC5996)
+After a UE has an established tunnel and when the UE receives an INFORMATIONAL request message including a delete payload, the UE transmits an INFORMATIONAL response message
+

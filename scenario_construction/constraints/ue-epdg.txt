@@ -1,0 +1,16 @@
+protocol, from_entity, from_state_in, from_condition, from_state_out, from_action, to_entity, to_state_in, to_condition, to_state_out, to_action
+
+# If an ePDG's IKE-AUTH includes a certificate payload, an AUTH payload, and an eap-request-aka-challenge payload, a UE should be able to process the payload
+IKE, ePDG, ike_responder_auth_1_request_wait, , ike_responder_auth_1_response_sent, epdg_last_sent_payload=certificate_authentication_eap-request-aka-challenge, UE, ike_initiator_auth_1_response_wait, epdg_last_sent_ike_msg=ike_auth_1, ike_initiator_auth_1_done, ue_last_rcvd_payload=certificate_authentication_eap-request-aka-challenge 
+
+# If an ePDG's IKE-AUTH includes an AUTH payload and an eap-request-aka-challenge payload, a UE does not need to process the certificate payload
+IKE, ePDG, ike_responder_auth_1_request_wait, , ike_responder_auth_1_response_sent, epdg_last_sent_payload=authentication_eap-request-aka-challenge, UE, ike_initiator_auth_1_response_wait, epdg_last_sent_ike_msg=ike_auth_1, ike_initiator_auth_1_done, ue_last_rcvd_payload=authentication_eap-request-aka-challenge
+
+# If an ePDG's IKE-AUTH includes an eap-request-aka-challenge payload, a UE does not need to process the certificate and the AUTH payload
+IKE, ePDG, ike_responder_auth_1_request_wait, , ike_responder_auth_1_response_sent, epdg_last_sent_payload=eap-request-aka-challenge, UE, ike_initiator_auth_1_response_wait, epdg_last_sent_ike_msg=ike_auth_1, ike_initiator_auth_1_done, ue_last_rcvd_payload=eap-request-aka-challenge
+
+# If a UE plays a role as a keepalive requester, an ePDG should be a keepalive responder
+IKE, UE, ike_initiator_keepalive, ike_exchange_start, ike_initiator_keepalive_request_sent, role=requester, ePDG, ike_responder_keepalive, ike_exchange_start, ike_responder_keepalive_request_wait, role=responder
+
+# If an ePDG initiates the keepalive request message, a UE should be able to process it and send the response message
+IKE, ePDG, ike_responder_keepalive, ike_exchange_start, ike_responder_keepalive_request_sent, role=requester, UE, ike_initiator_keepalive, ike_exchange_start, ike_responder_keepalive_response_wait, role=responder

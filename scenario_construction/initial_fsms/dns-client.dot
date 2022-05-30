@@ -1,0 +1,18 @@
+digraph DNS_CLIENT{
+rankdir = LR;
+size = "8,5"
+node [shape = circle, label="dns_client_idle"] dns_client_idle;
+node [shape = circle, label="dns_client_ready"] dns_client_ready;
+node [shape = circle, label="dns_client_query"] dns_client_query;
+node [shape = circle, label="dns_client_done"] dns_client_done;
+
+//initial_state: dns_client_idle
+//state variables: internal_dns_udp{send_dns_server_packet, send_dns_client_packet, null}<null>; internal_dns_ike{finish_epdg_discovery, null}<null>; 
+
+dns_client_idle -> dns_client_ready [label = "internal_udp_dns=ready / internal_dns_udp=null, internal_dns_ike=null"]
+
+dns_client_ready -> dns_client_query [label = "internal_ike_dns=init_epdg_discovery / internal_dns_udp=send_dns_client_packet, internal_ike_dns=null"]
+
+dns_client_query -> dns_client_query [label = "internal_udp_dns=sent_dns_packet / internal_udp_dns=null"]
+dns_client_query -> dns_client_done [label = "internal_udp_dns=rcvd_dns_packet / internal_dns_ike=finish_epdg_discovery, eip=network_eip, internal_udp_dns=null"]
+}

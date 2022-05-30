@@ -1,0 +1,59 @@
+# Properties
+
+1. DNS Query (TS 33.402/TS 36.523)
+When a UE includes an ePDG configuration information, the tunnel establishment procedure is initiated by the UE by transmitting a DNS query with QNAME set to FQDN of the ePDG
+
+LTLSPEC
+G (ue_ike-initiator_state=ike_initiator_sa_init
+->
+O ue_dns-client_state=dns_client_query)
+
+The following property generates the counter-example because UE should send the DNS query to establish the tunnel with the ePDG.
+
+LTLSPEC
+G (ue_ike-initiator_state=ike_initiator_sa_init
+->
+O ue_dns-client_state!=dns_client_query)
+
+2. DNS Response (TS 33.402/TS 36.523)
+The DNS server transmits a DNS Response message with the IP address of the ePDG
+
+LTLSPEC
+G (ue_phymac_state=phymac_wifi
+  & ue_dns-client_state=dns_client_done
+  & dns_phymac_state=phymac_eth
+  & dns_dns-server_state=dns_server_done
+  & !dns_spoofing_enabled
+->
+  network_eip=dns_eip)
+
+LTLSPEC
+G (ue_phymac_state=phymac_wifi
+  & ue_dns-client_state=dns_client_done
+  & dns_phymac_state=phymac_eth
+  & dns_dns-server_state=dns_server_done
+->
+  network_eip=dns_eip)
+
+3. ePDG discovery (Motivated by a IMSI catcher)
+
+Whenever a UE is powered on and a WiFi interface is turned on, the UE sends a DNS query to a DNS server to query the IP address of the ePDG server. The UE should receive the correct IP address of the ePDG server if an adversary does not perform a DNS spoofing attack.
+
+LTLSPEC
+G (ue_phymac_state=phymac_wifi
+  & ue_dns-client_state=dns_client_done
+  & dns_phymac_state=phymac_eth
+  & dns_dns-server_state=dns_server_done
+  & !dns_spoofing_enabled
+-> 
+  ue_eip=dns_eip)
+
+The following property generates the counter-example because of the DNS spoofing attack.
+
+LTLSPEC
+G (ue_phymac_state=phymac_wifi
+  & ue_dns-client_state=dns_client_done
+  & dns_phymac_state=phymac_eth
+  & dns_dns-server_state=dns_server_done
+-> 
+  ue_eip=dns_eip)

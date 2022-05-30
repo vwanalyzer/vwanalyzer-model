@@ -1,0 +1,17 @@
+digraph PHYMAC{
+rankdir = LR;
+size = "8,5"
+node [shape = circle, label="phymac_null"] phymac_null;
+node [shape = circle, label="phymac_eth"] phymac_eth;
+node [shape = circle, label="phymac_wifi"] phymac_wifi;
+node [shape = circle, label="phymac_lte"] phymac_lte;
+
+//initial_state: phymac_null
+//environment variables: power_on; wifi_turn_on; wifi_turn_off; high_lte_signal_strength;
+//state variables: internal_phymac_ip{eth, wifi, lte, null}<null>; powered_on{true, false}<false>; is_ue{true, false}<false>; wifi_turned_on{true, false}<false>; handover_triggered{true, false}<false>;
+phymac_null -> phymac_eth [label = "!is_ue / powered_on=true, internal_phymac_ip=eth, is_ue=false"]
+phymac_null -> phymac_lte [label = "power_on & is_ue / powered_on=true, internal_phymac_ip=lte, is_ue=true"]
+phymac_lte -> phymac_wifi [label = "wifi_turn_on / wifi_turned_on=true, internal_phymac_ip=wifi"]
+//phymac_wifi -> phymac_wifi [label = "wifi_turn_off / wifi_turned_on=false, handover_triggered=true"]
+//phymac_wifi -> phymac_lte [label = "handover_triggered / send_rrc_connection_request, internal_phymac_ip=lte"]
+}

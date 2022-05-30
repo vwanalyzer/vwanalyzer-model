@@ -1,0 +1,25 @@
+digraph IP{
+rankdir = LR;
+size = "8,5"
+node [shape = circle, label="ip_idle"] ip_idle;
+node [shape = circle, label="ip_ready"] ip_ready;
+node [shape = circle, label="ip_packet_sent"] ip_packet_sent;
+
+//initial_state: ip_idle
+//state variables: internal_ip_udp{ip_set, sent_ip_packet, rcvd_ip_packet, error, null}<null>; external_other_me{rcvd_ip_packet, null}<null>; external_me_other{sent_ip_packet, null}<null>;
+//number variables: sent_src_addr{0, 5}<0, my_ip>; sent_dst_addr{0, 5}<0, target_addr>; sent_src_port{0, 5}<0, target_port>; sent_dst_port{0, 5}<0, target_port>; rcvd_src_addr{0, 5}<0, ue_to_other_src_addr, epdg_to_other_src_addr, dns_to_other_src_addr>; rcvd_dst_addr{0, 5}<0, ue_to_other_dst_addr, epdg_to_other_dst_addr, dns_to_other_dst_addr>; rcvd_src_port{0, 5}<0, ue_to_other_src_port, epdg_to_other_src_port, dns_to_other_src_port>; rcvd_dst_port{0, 5}<0, ue_to_other_dst_port, epdg_to_other_dst_port, dns_to_other_dst_port>;
+//define: dst_addr_check := (my_ip>0 & rcvd_dst_addr>0 & rcvd_dst_addr=my_ip);
+
+ip_idle -> ip_idle [label = "internal_phymac_ip=null / my_ip=0"]
+ip_idle -> ip_idle [label = "internal_udp_ip=send_ip_packet / internal_ip_udp=error, internal_udp_ip=null"]
+ip_idle -> ip_idle [label = "external_other_me=rcvd_ip_packet / internal_ip_udp=error, external_other_me=null"]
+ip_idle -> ip_ready [label = "internal_phymac_ip=eth / my_ip=my_address, internal_ip_udp=ip_set, internal_phymac_ip=null"]
+ip_idle -> ip_ready [label = "internal_phymac_ip=wifi / my_ip=my_address, internal_ip_udp=ip_set, internal_phymac_ip=null"]
+
+ip_ready -> ip_packet_sent [label = "internal_udp_ip=send_ip_packet & channel_state=channel_idle / external_me_other=sent_ip_packet, sent_src_addr=my_ip, sent_src_port=target_port, sent_dst_addr=target_addr, sent_dst_port=target_port, internal_udp_ip=null"]
+
+ip_packet_sent -> ip_ready [label = "external_me_other=null / internal_ip_udp=sent_ip_packet"]
+
+ip_ready -> ip_ready [label= "external_other_me=rcvd_ip_packet & dst_addr_check / external_other_me=null, internal_ip_udp=rcvd_ip_packet"]
+ip_ready -> ip_ready [label= "external_other_me=rcvd_ip_packet & !dst_addr_check / external_other_me=null"]
+}

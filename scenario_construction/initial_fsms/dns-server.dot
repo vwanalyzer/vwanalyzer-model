@@ -1,0 +1,15 @@
+digraph DNS_SERVER{
+rankdir = LR;
+size = "8,5"
+node [shape = circle, label="dns_server_idle"] dns_server_idle;
+node [shape = circle, label="dns_server_ready"] dns_server_ready;
+node [shape = circle, label="dns_server_done"] dns_server_done;
+
+//initial_state: dns_server_idle
+//state variables: internal_dns_udp{send_dns_server_packet, send_dns_client_packet, null}<null>; 
+
+dns_server_idle -> dns_server_ready [label = "internal_udp_dns=ready / internal_dns_udp=null"]
+
+dns_server_ready -> dns_server_ready [label = "internal_udp_dns=rcvd_dns_packet / internal_dns_udp=send_dns_server_packet, internal_udp_dns=null"]
+dns_server_ready -> dns_server_done [label = "internal_udp_dns=sent_dns_packet / internal_udp_dns=null"]
+}

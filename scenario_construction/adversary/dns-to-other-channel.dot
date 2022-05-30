@@ -1,0 +1,15 @@
+digraph DNS_TO_OTHER_CHANNEL{
+rankdir = LR;
+size = "8,5"
+node [shape = circle, label="channel_idle"] channel_idle;
+node [shape = circle, label="dns_to_ue_packet"] dns_to_ue_packet;
+
+//initial_state: channel_idle
+//environment variables: dns_spoofing;
+//number variables: dns_to_other_src_addr{0, 5}<0, dns_sent_src_addr>; dns_to_other_dst_addr{0, 5}<0, nat_uip, dns_sent_dst_addr>; dns_to_other_src_port{0, 5}<0, dns_sent_src_port>; dns_to_other_dst_port{0, 5}<0, dns_sent_dst_port>;
+channel_idle -> dns_to_ue_packet [label = "dns_external_dns_other=sent_ip_packet & dns_sent_dst_addr=nat_nip & dns_spoofing / dns_to_other_src_addr=dns_sent_src_addr, dns_to_other_dst_addr=nat_uip, dns_to_other_src_port=dns_sent_src_port, dns_to_other_dst_port=dns_sent_dst_port, network_eip=adv_aip, dns_spoofing_enabled=true, dns_external_dns_other=null"]
+channel_idle -> dns_to_ue_packet [label = "dns_external_dns_other=sent_ip_packet & dns_sent_dst_addr=nat_nip & dns_spoofing_enabled / dns_to_other_src_addr=dns_sent_src_addr, dns_to_other_dst_addr=nat_uip, dns_to_other_src_port=dns_sent_src_port, dns_to_other_dst_port=dns_sent_dst_port, network_eip=adv_aip, dns_external_dns_other=null"]
+channel_idle -> dns_to_ue_packet [label = "dns_external_dns_other=sent_ip_packet & dns_sent_dst_addr=nat_nip & !dns_spoofing & !dns_spoofing_enabled / dns_to_other_src_addr=dns_sent_src_addr, dns_to_other_dst_addr=nat_uip, dns_to_other_src_port=dns_sent_src_port, dns_to_other_dst_port=dns_sent_dst_port, network_eip=dns_eip, dns_external_dns_other=null"]
+
+dns_to_ue_packet -> channel_idle [label = "dns_to_other_dst_addr=nat_uip / ue_external_other_ue=rcvd_ip_packet, ue_rcvd_src_addr=dns_to_other_src_addr, ue_rcvd_dst_addr=dns_to_other_dst_addr, ue_rcvd_src_port=dns_to_other_src_port, ue_rcvd_dst_port=dns_to_other_dst_port"]
+}
