@@ -7,6 +7,8 @@ This repository contains the source codes for the VWAnalyzer framework. The deta
 which can be found at:
 https://dl.acm.org/doi/abs/10.1145/3488932.3517425
 
+Please send an email to Hyunwoo Lee (lee3816@purdue.edu) if you have any question or comments.
+
 The VWAnalyzer framework is to analyze the VoWiFi protocol based on its specifications and consists of two steps called _Scenario Construction_ and _Scenario Verification_.
 
 To get the counterexamples,
